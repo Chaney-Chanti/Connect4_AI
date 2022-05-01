@@ -5,6 +5,7 @@ import sys
 import math
 import time
 import pprint
+import random
 
 BLUE = (0,0,255)
 BLACK = (0,0,0)
@@ -200,7 +201,7 @@ def pick_best_move(board, piece):
 boards = create_board()
 game_over = False
 # turn = random.randint(PLAYER, AI)
-turn = AI
+turn = PLAYER
 
 while not game_over:
     for board in boards:
@@ -226,19 +227,27 @@ while not game_over:
     if turn == PLAYER and not game_over:
         idx = int(input('Please choose a board (0-3): '))
         col = int(input('Please choose a column (0-6): '))
+        othr_boards = [0,1,2,3]
+        othr_boards.remove(col)
         if not (isinstance(idx, int) and idx >= 0 and idx <= 3):
             print('Please enter a valid board number between 0-3 inclusivley')
         elif not (isinstance(idx, int) and col >= 0 and col <= 6):
             print('Please enter a valid column number between 0-6 inclusivley')
         elif is_valid_location(boards[idx], col):
+            for i in range(0, len(othr_boards)):
+                valid_actions = get_valid_locations(boards[othr_boards[i]]) #Get valid columns
+                print(valid_actions)
+                rand_col = random.choice(valid_actions) #Pick a random column
+                row = get_next_open_row(boards[othr_boards[i]], rand_col)
+                drop_piece(boards[othr_boards[i]], row, rand_col, PLAYER_PIECE)
             row = get_next_open_row(boards[idx], col)
             drop_piece(boards[idx], row, col, PLAYER_PIECE)
             if winning_move(boards[idx], PLAYER_PIECE):
                 game_over = True
                 print('PLAYER WINS!!!!')
 
-            turn += 1
-            turn = turn % 2
+            # turn += 1
+            # turn = turn % 2
         
     if game_over:
         pygame.time.wait(3000)
