@@ -74,8 +74,14 @@ def winning_move(board, piece):
 def draw_board(boards):
      for c in range(COLUMN_COUNT):
          for r in range(ROW_COUNT):
-             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )
-             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
+             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 20, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )
+             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 20 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
+             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 675, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )             
+             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 675 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
+             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 20, r*SQUARESIZE + SQUARESIZE + 400, SQUARESIZE, SQUARESIZE) )             
+             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 20 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2 + 400)), RADIUS)
+             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 675, r*SQUARESIZE + SQUARESIZE + 400, SQUARESIZE, SQUARESIZE) )             
+             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 675 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2 + 400)), RADIUS)
 
 def evaluate_window(window, piece):
     score = 0
@@ -210,7 +216,7 @@ SQUARESIZE = 50
 width = COLUMN_COUNT * SQUARESIZE
 height = (ROW_COUNT + 1) * SQUARESIZE
 
-size = (width*3, height*2)
+size = (width*3, height*2.2)
 
 RADIUS = int(SQUARESIZE/2 - 5)
 
