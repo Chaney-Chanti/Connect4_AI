@@ -225,108 +225,86 @@ draw_board(boards)
 pygame.display.update()
 
 while not game_over:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            # idx = math.floor(event.pos[0])
-            # idy = math.floor(event.pos[1])
-            # # print(idx)
-            # # print(idy)
-            # col = math.floor(idx/SQUARESIZE)
-            # # print(col)
-            # if idx >= 0 and idx <= 370 and idy >= 0 and idy <= 340:
-            #     col = math.floor(idx/SQUARESIZE)
-            #     idx = 0
-            # elif idx >= 675 and idx <= 1030 and idy >= 0 and idy <= 340:
-            #     col = math.floor((idx/SQUARESIZE) - 13)
-            #     idx = 1
-            # elif idx >= 0 and idx <= 370 and idy >= 350 and idy <= 550:
-            #     col = math.floor(idx/SQUARESIZE)
-            #     idx = 2
-            # else:
-            #     col = math.floor((idx/SQUARESIZE) - 13)
-            #     idx = 3
-            # print(idx)
-            # print(col)
-
-            for board in boards:
+    if turn == PLAYER and not game_over:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                for board in boards:
                     print_board(board)
                     print('____________________________')
-                    print('===========================================')
+                print('===========================================')
+                if turn == PLAYER and not game_over:
+                    idx = math.floor(event.pos[0])
+                    idy = math.floor(event.pos[1])
+                    print(idx, idy)
+                    if idx <= 600 and idy <= 350: #board 0 
+                        col = math.floor(idx/SQUARESIZE)
+                        idx = 0
+                    elif idx > 600 and idy <= 350: #board 1
+                        col = math.floor((idx/SQUARESIZE) - 13.4)
+                        idx = 1
+                    elif idx <= 600 and idy > 350: #board 2
+                        col = math.floor(idx/SQUARESIZE)
+                        idx = 2
+                    elif idx > 600 and idy > 350: #board 3
+                        col = math.floor((idx/SQUARESIZE) - 13.4)
+                        idx = 3
+                    print('board:', idx)
+                    print('column: ', col)
+                    othr_boards = [0,1,2,3]
+                    othr_boards.remove(idx)
+                    if not (isinstance(idx, int) and idx >= 0 and idx <= 3):
+                        print('Please enter a valid board number between 0-3 inclusivley')
+                    elif not (isinstance(col, int) and col >= 0 and col <= 6):
+                        print('Please enter a valid column number between 0-6 inclusivley')
+                    elif is_valid_location(boards[idx], col):
+                        for i in range(0, len(othr_boards)):
+                            valid_actions = get_valid_locations(boards[othr_boards[i]]) #Get valid columns
+                            rand_col = random.choice(valid_actions) #Pick a random column
+                            row = get_next_open_row(boards[othr_boards[i]], rand_col)
+                            drop_piece(boards[othr_boards[i]], row, rand_col, PLAYER_PIECE)
+                        row = get_next_open_row(boards[idx], col)
+                        drop_piece(boards[idx], row, col, PLAYER_PIECE)
+                        if winning_move(boards[idx], PLAYER_PIECE):
+                            game_over = True
+                            print('PLAYER WINS!!!!')
+                        turn += 1
+                        turn = turn % 2
 
-            if turn == AI and not game_over:
-                col = random.randint(0, COLUMN_COUNT-1)
-                col = pick_best_move(board, AI_PIECE)
-                columns = []
-                minimax_scores = []
-                for board in boards:
-                    col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
-                    columns.append(col)
-                    minimax_scores.append(minimax_score)
-                best_move_index = minimax_scores.index(max(minimax_scores))
-                col = columns[best_move_index]
-                print(minimax_scores)
-                print(columns)
-                row = get_next_open_row(boards[best_move_index], col)
-                drop_piece(boards[best_move_index], row, col, AI_PIECE)
-                othr_boards = [0,1,2,3]
-                othr_boards.remove(best_move_index)
-                if is_valid_location(board, col):
-                    pygame.time.wait(500) # I think this is to wait if the calculation takes too long
-                    for i in range(0, len(othr_boards)):
-                        valid_actions = get_valid_locations(boards[othr_boards[i]]) #Get valid columns
-                        rand_col = random.choice(valid_actions) #Pick a random column
-                        row = get_next_open_row(boards[othr_boards[i]], rand_col)
-                        drop_piece(boards[othr_boards[i]], row, rand_col, AI_PIECE)
-                    if winning_move(board, AI_PIECE):
-                        game_over = True
-                        print('AI WINS!!!')
-                    turn += 1
-                    turn = turn % 2
-                    
-            elif turn == PLAYER and not game_over:
-                idx = math.floor(event.pos[0])
-                idy = math.floor(event.pos[1])
-                # print(idx)
-                # print(idy)
-                col = math.floor(idx/SQUARESIZE)
-                # print(col)
-                if idx >= 0 and idx <= 370 and idy >= 0 and idy <= 340:
-                    col = math.floor(idx/SQUARESIZE)
-                    idx = 0
-                elif idx >= 675 and idx <= 1030 and idy >= 0 and idy <= 340:
-                    col = math.floor((idx/SQUARESIZE) - 13)
-                    idx = 1
-                elif idx >= 0 and idx <= 370 and idy >= 350 and idy <= 550:
-                    col = math.floor(idx/SQUARESIZE)
-                    idx = 2
-                else:
-                    col = math.floor((idx/SQUARESIZE) - 13)
-                    idx = 3
-                # print(idx)
-                # print(col)
-                othr_boards = [0,1,2,3]
-                othr_boards.remove(idx)
-                if not (isinstance(idx, int) and idx >= 0 and idx <= 3):
-                    print('Please enter a valid board number between 0-3 inclusivley')
-                elif not (isinstance(col, int) and col >= 0 and col <= 6):
-                    print('Please enter a valid column number between 0-6 inclusivley')
-                elif is_valid_location(boards[idx], col):
-                    for i in range(0, len(othr_boards)):
-                        valid_actions = get_valid_locations(boards[othr_boards[i]]) #Get valid columns
-                        rand_col = random.choice(valid_actions) #Pick a random column
-                        row = get_next_open_row(boards[othr_boards[i]], rand_col)
-                        drop_piece(boards[othr_boards[i]], row, rand_col, PLAYER_PIECE)
-                    row = get_next_open_row(boards[idx], col)
-                    drop_piece(boards[idx], row, col, PLAYER_PIECE)
-                    if winning_move(boards[idx], PLAYER_PIECE):
-                        game_over = True
-                        print('PLAYER WINS!!!!')
-                    turn += 1
-                    turn = turn % 2
-
-    
+    if turn == AI and not game_over:
+        col = random.randint(0, COLUMN_COUNT-1)
+        col = pick_best_move(board, AI_PIECE)
+        columns = []
+        minimax_scores = []
+        for board in boards:
+            col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
+            columns.append(col)
+            minimax_scores.append(minimax_score)
+        best_move_index = minimax_scores.index(max(minimax_scores))
+        col = columns[best_move_index]
+        print('minimax scores:', minimax_scores)
+        print('columns:', columns)
+        row = get_next_open_row(boards[best_move_index], col)
+        drop_piece(boards[best_move_index], row, col, AI_PIECE)
+        othr_boards = [0,1,2,3]
+        othr_boards.remove(best_move_index)
+        if is_valid_location(board, col):
+            pygame.time.wait(500) # I think this is to wait if the calculation takes too long
+            for i in range(0, len(othr_boards)):
+                valid_actions = get_valid_locations(boards[othr_boards[i]]) #Get valid columns
+                rand_col = random.choice(valid_actions) #Pick a random column
+                row = get_next_open_row(boards[othr_boards[i]], rand_col)
+                drop_piece(boards[othr_boards[i]], row, rand_col, AI_PIECE)
+            if winning_move(board, AI_PIECE):
+                game_over = True
+                print('AI WINS!!!')
+            turn += 1
+            turn = turn % 2
+        for board in boards:
+            print_board(board)
+            print('____________________________')
+        print('===========================================')
         
     if game_over:
         for board in boards:
