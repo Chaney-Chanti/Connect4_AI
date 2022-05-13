@@ -4,7 +4,6 @@ import pygame
 import sys
 import math
 import time
-import pprint
 import random
 
 BLUE = (0,0,255)
@@ -202,7 +201,6 @@ def pick_best_move(board, piece):
         if score > best_score:
             best_score = score
             best_col = col
-
     return best_col
 
 boards = create_board()
@@ -238,16 +236,16 @@ while not game_over:
                     idx = math.floor(event.pos[0])
                     idy = math.floor(event.pos[1])
                     print(idx, idy)
-                    if idx <= 600 and idy <= 350: #board 0 
+                    if idx >= 0 and idx <= 370 and idy >= 0 and idy <= 340: #board 0 
                         col = math.floor(idx/SQUARESIZE)
                         idx = 0
-                    elif idx > 600 and idy <= 350: #board 1
+                    elif idx >= 675 and idx <= 1030 and idy >= 0 and idy <= 340: #board 1
                         col = math.floor((idx/SQUARESIZE) - 13.4)
                         idx = 1
-                    elif idx <= 600 and idy > 350: #board 2
+                    elif idx >= 0 and idx <= 370 and idy >= 350 and idy <= 1000: #board 2
                         col = math.floor(idx/SQUARESIZE)
                         idx = 2
-                    elif idx > 600 and idy > 350: #board 3
+                    else: #board 3
                         col = math.floor((idx/SQUARESIZE) - 13.4)
                         idx = 3
                     print('board:', idx)
@@ -285,8 +283,6 @@ while not game_over:
         col = columns[best_move_index]
         print('minimax scores:', minimax_scores)
         print('columns:', columns)
-        row = get_next_open_row(boards[best_move_index], col)
-        drop_piece(boards[best_move_index], row, col, AI_PIECE)
         othr_boards = [0,1,2,3]
         othr_boards.remove(best_move_index)
         if is_valid_location(board, col):
@@ -296,6 +292,8 @@ while not game_over:
                 rand_col = random.choice(valid_actions) #Pick a random column
                 row = get_next_open_row(boards[othr_boards[i]], rand_col)
                 drop_piece(boards[othr_boards[i]], row, rand_col, AI_PIECE)
+            row = get_next_open_row(boards[best_move_index], col)
+            drop_piece(boards[best_move_index], row, col, AI_PIECE)
             if winning_move(board, AI_PIECE):
                 game_over = True
                 print('AI WINS!!!')
