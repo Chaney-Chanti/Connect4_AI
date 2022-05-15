@@ -3,8 +3,10 @@ import random
 import pygame
 import sys
 import math
-import time
 import random
+from itertools import chain
+import time
+
 
 BLUE = (0,0,255)
 BLACK = (0,0,0)
@@ -75,12 +77,12 @@ def draw_board(boards):
          for r in range(ROW_COUNT):
              pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 20, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )
              pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 20 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
-             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 675, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )             
-             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 675 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
+             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 400, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )             
+             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 400 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
              pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 20, r*SQUARESIZE + SQUARESIZE + 400, SQUARESIZE, SQUARESIZE) )             
              pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 20 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2 + 400)), RADIUS)
-             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 675, r*SQUARESIZE + SQUARESIZE + 400, SQUARESIZE, SQUARESIZE) )             
-             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 675 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2 + 400)), RADIUS)
+             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 400, r*SQUARESIZE + SQUARESIZE + 400, SQUARESIZE, SQUARESIZE) )             
+             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 400 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2 + 400)), RADIUS)
 
 def evaluate_window(window, piece):
     score = 0
@@ -211,7 +213,7 @@ turn = PLAYER
 pygame.init()
 
 SQUARESIZE = 50
-width = COLUMN_COUNT * SQUARESIZE
+width = COLUMN_COUNT * SQUARESIZE - 75
 height = (ROW_COUNT + 1) * SQUARESIZE
 
 size = (width*3, height*2.2)
@@ -236,39 +238,52 @@ while not game_over:
                     idx = math.floor(event.pos[0])
                     idy = math.floor(event.pos[1])
                     print(idx, idy)
-                    if idx >= 0 and idx <= 370 and idy >= 0 and idy <= 340: #board 0 
-                        col = math.floor(idx/SQUARESIZE)
-                        idx = 0
-                    elif idx >= 675 and idx <= 1030 and idy >= 0 and idy <= 340: #board 1
-                        col = math.floor((idx/SQUARESIZE) - 13.4)
-                        idx = 1
-                    elif idx >= 0 and idx <= 370 and idy >= 350 and idy <= 1000: #board 2
-                        col = math.floor(idx/SQUARESIZE)
-                        idx = 2
-                    else: #board 3
-                        col = math.floor((idx/SQUARESIZE) - 13.4)
-                        idx = 3
-                    print('board:', idx)
-                    print('column: ', col)
-                    othr_boards = [0,1,2,3]
-                    othr_boards.remove(idx)
-                    if not (isinstance(idx, int) and idx >= 0 and idx <= 3):
-                        print('Please enter a valid board number between 0-3 inclusivley')
-                    elif not (isinstance(col, int) and col >= 0 and col <= 6):
-                        print('Please enter a valid column number between 0-6 inclusivley')
-                    elif is_valid_location(boards[idx], col):
-                        for i in range(0, len(othr_boards)):
-                            valid_actions = get_valid_locations(boards[othr_boards[i]]) #Get valid columns
-                            rand_col = random.choice(valid_actions) #Pick a random column
-                            row = get_next_open_row(boards[othr_boards[i]], rand_col)
-                            drop_piece(boards[othr_boards[i]], row, rand_col, PLAYER_PIECE)
-                        row = get_next_open_row(boards[idx], col)
-                        drop_piece(boards[idx], row, col, PLAYER_PIECE)
-                        if winning_move(boards[idx], PLAYER_PIECE):
-                            game_over = True
-                            print('PLAYER WINS!!!!')
-                        turn += 1
-                        turn = turn % 2
+                    ranges = {
+                        'columnZero': {'range': chain(range(20, 65), range(400, 445)), 'column': 0},
+                        'columnOne': {'range':chain(range(75, 115), range(455, 495)), 'column': 1},
+                        'columnTwo': {'range':chain(range(125, 165), range(505, 545)), 'column': 2},
+                        'columnThree': {'range':chain(range(175, 215), range(555, 595)), 'column': 3},
+                        'columnFour': {'range':chain(range(225, 265), range(605, 645)), 'column': 4},
+                        'columnFive': {'range':chain(range(275, 310), range(655, 695)), 'column': 5},
+                        'columnSix': {'range':chain(range(325, 365), range(705, 745)), 'column': 6},
+                    }
+                    fold = 400
+                    found = False
+                    col = False
+                    for key in ranges:
+                        if idx in ranges[key]['range']:
+                            col = ranges[key]['column']
+                            break
+                    if col:
+                        if idx < 385 and idy < 400:
+                            idx = 0
+                        if idx >= 385 and idy < 400:
+                            idx = 1
+                        if idx < 385 and idy > 400:
+                            idx = 2
+                        if idx >= 385 and idy > 400:
+                            idx = 3
+                        print('board:', idx)
+                        print('column: ', col)
+                        othr_boards = [0,1,2,3]
+                        othr_boards.remove(idx)
+                        if not (isinstance(idx, int) and idx >= 0 and idx <= 3):
+                            print('Please enter a valid board number between 0-3 inclusivley')
+                        elif not (isinstance(col, int) and col >= 0 and col <= 6):
+                            print('Please enter a valid column number between 0-6 inclusivley')
+                        elif is_valid_location(boards[idx], col):
+                            for i in range(0, len(othr_boards)):
+                                valid_actions = get_valid_locations(boards[othr_boards[i]]) #Get valid columns
+                                rand_col = random.choice(valid_actions) #Pick a random column
+                                row = get_next_open_row(boards[othr_boards[i]], rand_col)
+                                drop_piece(boards[othr_boards[i]], row, rand_col, PLAYER_PIECE)
+                            row = get_next_open_row(boards[idx], col)
+                            drop_piece(boards[idx], row, col, PLAYER_PIECE)
+                            if winning_move(boards[idx], PLAYER_PIECE):
+                                game_over = True
+                                print('PLAYER WINS!!!!')
+                            turn += 1
+                            turn = turn % 2
 
     if turn == AI and not game_over:
         col = random.randint(0, COLUMN_COUNT-1)
