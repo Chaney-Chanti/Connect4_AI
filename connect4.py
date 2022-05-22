@@ -5,7 +5,6 @@ import sys
 import math
 import random
 from itertools import chain
-import time
 
 
 BLUE = (0,0,255)
@@ -250,7 +249,6 @@ pygame.display.update()
 while not game_over:
     if turn == PLAYER and not game_over:
         for event in pygame.event.get():
-            # event = pygame.event.wait()
             if event.type == pygame.QUIT:
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -311,25 +309,34 @@ while not game_over:
                             draw_board(boards)
 
     if turn == AI and not game_over:
-        # col = random.randint(0, COLUMN_COUNT-1)
-        # col = pick_best_move(board, AI_PIECE)
-        columns = []
-        minimax_scores = []
+        min_columns = []
+        max_columns = []
+        min_scores = []
+        max_scores = []
         for board in boards:
             col, minimax_score = minimax(board, 5, -math.inf, math.inf, False)
-            columns.append(col)
-            minimax_scores.append(minimax_score)
-        best_move_index = minimax_scores.index(min(minimax_scores))
-        col = columns[best_move_index]
+            min_columns.append(col)
+            min_scores.append(minimax_score)
+            col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
+            min_columns.append(col)
+            max_scores.append(minimax_score)
+        best_move_min = min_scores.index(min(min_scores))
+        best_move_max = max_scores.index(max(max_scores))
+        if abs(min(min_scores)) >= abs(max(max_scores)):
+            best_move_index = min_scores.index(min(min_scores))
+        elif abs(min(min_scores)) < abs(max(max_scores)):
+            best_move_index = max_scores.index(max(max_scores))
+        col = min_columns[best_move_index]
         row = get_next_open_row(boards[best_move_index], col)
         drop_piece(boards[best_move_index], row, col, AI_PIECE)
-        print('minimax scores:', minimax_scores)
-        print('columns:', columns)
+        print('min scores:', min_scores)
+        print('max scores:', max_scores)
+        print('min_columns:', min_columns)
         print('AI dropped on board: ', best_move_index, 'in column: ', col)
         othr_boards = [0,1,2,3]
         othr_boards.remove(best_move_index)
         if is_valid_location(board, col):
-            pygame.time.wait(500) # I think this is to wait if the calculation takes too long
+            pygame.time.wait(500)
             for i in range(0, len(othr_boards)):
                 valid_actions = get_valid_locations(boards[othr_boards[i]]) #Get valid columns
                 rand_col = random.choice(valid_actions) #Pick a random column
@@ -349,5 +356,5 @@ while not game_over:
         
     if game_over:
         print('GAME OVER!!!!')
-        pygame.time.wait(3000)
+        pygame.time.wait(2000)
     
