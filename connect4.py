@@ -73,16 +73,39 @@ def winning_move(board, piece):
                 return True
 
 def draw_board(boards):
-     for c in range(COLUMN_COUNT):
-         for r in range(ROW_COUNT):
-             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 20, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )
-             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 20 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
-             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 400, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )             
-             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 400 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
-             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 20, r*SQUARESIZE + SQUARESIZE + 400, SQUARESIZE, SQUARESIZE) )             
-             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 20 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2 + 400)), RADIUS)
-             pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 400, r*SQUARESIZE + SQUARESIZE + 400, SQUARESIZE, SQUARESIZE) )             
-             pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 400 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2 + 400)), RADIUS)
+    for c in range(COLUMN_COUNT):
+        for r in range(ROW_COUNT):
+            pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 20, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )
+            pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 20 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
+            pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 400, r*SQUARESIZE + SQUARESIZE, SQUARESIZE, SQUARESIZE) )             
+            pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 400 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2)), RADIUS)
+            pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 20, r*SQUARESIZE + SQUARESIZE + 400, SQUARESIZE, SQUARESIZE) )             
+            pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 20 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2 + 400)), RADIUS)
+            pygame.draw.rect(screen, BLUE, (c*SQUARESIZE + 400, r*SQUARESIZE + SQUARESIZE + 400, SQUARESIZE, SQUARESIZE) )             
+            pygame.draw.circle(screen, BLACK, (int(c*SQUARESIZE + 400 + SQUARESIZE/2), int(r*SQUARESIZE + SQUARESIZE + SQUARESIZE/2 + 400)), RADIUS)
+
+    for board in range(4):
+        for c in range(COLUMN_COUNT):
+            for r in range(ROW_COUNT):
+                if board == 0:
+                    x = 45
+                    y = 325
+                elif board == 1:
+                    x = 425
+                    y = 325
+                elif board == 2:
+                    x = 45
+                    y = 725
+                elif board == 3:
+                    x = 425
+                    y = 725
+                if boards[board][r][c] == PLAYER_PIECE:
+                    print('board: ', board, 'player: ', r, c)
+                    pygame.draw.circle(screen, RED, (x + (50 * c), y - (50 * r)), RADIUS)
+                elif boards[board][r][c] == AI_PIECE: 
+                    print('board: ', board, 'ai: ', r, c)
+                    pygame.draw.circle(screen, YELLOW, (x + (50 * c), y - (50 * r)), RADIUS)
+        pygame.display.update()
 
 def evaluate_window(window, piece):
     score = 0
@@ -207,7 +230,7 @@ def pick_best_move(board, piece):
 
 boards = create_board()
 game_over = False
-# turn = random.randint(PLAYER, AI)
+turn = random.randint(PLAYER, AI)
 turn = PLAYER
 
 pygame.init()
@@ -252,10 +275,13 @@ while not game_over:
                     col = False
                     for key in ranges:
                         if idx in ranges[key]['range']:
+                            print('in x range')
                             col = ranges[key]['column']
+                            print(col)
                             break
-                    if col:
+                    if col >= 0:
                         if idx < 385 and idy < 400:
+                            print('true')
                             idx = 0
                         if idx >= 385 and idy < 400:
                             idx = 1
@@ -284,10 +310,11 @@ while not game_over:
                                 print('PLAYER WINS!!!!')
                             turn += 1
                             turn = turn % 2
+                            draw_board(boards)
 
     if turn == AI and not game_over:
-        col = random.randint(0, COLUMN_COUNT-1)
-        col = pick_best_move(board, AI_PIECE)
+        # col = random.randint(0, COLUMN_COUNT-1)
+        # col = pick_best_move(board, AI_PIECE)
         columns = []
         minimax_scores = []
         for board in boards:
@@ -296,6 +323,8 @@ while not game_over:
             minimax_scores.append(minimax_score)
         best_move_index = minimax_scores.index(max(minimax_scores))
         col = columns[best_move_index]
+        row = get_next_open_row(boards[best_move_index], col)
+        drop_piece(boards[best_move_index], row, col, AI_PIECE)
         print('minimax scores:', minimax_scores)
         print('columns:', columns)
         othr_boards = [0,1,2,3]
@@ -307,13 +336,12 @@ while not game_over:
                 rand_col = random.choice(valid_actions) #Pick a random column
                 row = get_next_open_row(boards[othr_boards[i]], rand_col)
                 drop_piece(boards[othr_boards[i]], row, rand_col, AI_PIECE)
-            row = get_next_open_row(boards[best_move_index], col)
-            drop_piece(boards[best_move_index], row, col, AI_PIECE)
             if winning_move(board, AI_PIECE):
                 game_over = True
                 print('AI WINS!!!')
             turn += 1
             turn = turn % 2
+            draw_board(boards)
         for board in boards:
             print_board(board)
             print('____________________________')
@@ -324,3 +352,4 @@ while not game_over:
             print_board(board)
             print('===========================================')
         pygame.time.wait(3000)
+    
