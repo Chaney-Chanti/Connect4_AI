@@ -100,10 +100,10 @@ def draw_board(boards):
                     x = 425
                     y = 725
                 if boards[board][r][c] == PLAYER_PIECE:
-                    print('board: ', board, 'player: ', r, c)
+                    # print('board: ', board, 'player: ', r, c)
                     pygame.draw.circle(screen, RED, (x + (50 * c), y - (50 * r)), RADIUS)
                 elif boards[board][r][c] == AI_PIECE: 
-                    print('board: ', board, 'ai: ', r, c)
+                    # print('board: ', board, 'ai: ', r, c)
                     pygame.draw.circle(screen, YELLOW, (x + (50 * c), y - (50 * r)), RADIUS)
         pygame.display.update()
 
@@ -250,6 +250,7 @@ pygame.display.update()
 while not game_over:
     if turn == PLAYER and not game_over:
         for event in pygame.event.get():
+            # event = pygame.event.wait()
             if event.type == pygame.QUIT:
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -275,13 +276,10 @@ while not game_over:
                     col = False
                     for key in ranges:
                         if idx in ranges[key]['range']:
-                            print('in x range')
                             col = ranges[key]['column']
-                            print(col)
                             break
                     if col >= 0:
                         if idx < 385 and idy < 400:
-                            print('true')
                             idx = 0
                         if idx >= 385 and idy < 400:
                             idx = 1
@@ -289,8 +287,8 @@ while not game_over:
                             idx = 2
                         if idx >= 385 and idy > 400:
                             idx = 3
-                        print('board:', idx)
-                        print('column: ', col)
+                        # print('board:', idx)
+                        # print('column: ', col)
                         othr_boards = [0,1,2,3]
                         othr_boards.remove(idx)
                         if not (isinstance(idx, int) and idx >= 0 and idx <= 3):
@@ -327,6 +325,7 @@ while not game_over:
         drop_piece(boards[best_move_index], row, col, AI_PIECE)
         print('minimax scores:', minimax_scores)
         print('columns:', columns)
+        print('AI dropped on board: ', best_move_index, 'in column: ', col)
         othr_boards = [0,1,2,3]
         othr_boards.remove(best_move_index)
         if is_valid_location(board, col):
@@ -336,9 +335,10 @@ while not game_over:
                 rand_col = random.choice(valid_actions) #Pick a random column
                 row = get_next_open_row(boards[othr_boards[i]], rand_col)
                 drop_piece(boards[othr_boards[i]], row, rand_col, AI_PIECE)
-            if winning_move(board, AI_PIECE):
-                game_over = True
-                print('AI WINS!!!')
+            for j in range(4):
+                if winning_move(boards[j], AI_PIECE):
+                    game_over = True
+                    print('AI WINS!!!')
             turn += 1
             turn = turn % 2
             draw_board(boards)
@@ -348,8 +348,6 @@ while not game_over:
         print('===========================================')
         
     if game_over:
-        for board in boards:
-            print_board(board)
-            print('===========================================')
+        print('GAME OVER!!!!')
         pygame.time.wait(3000)
     
