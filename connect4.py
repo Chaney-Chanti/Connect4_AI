@@ -316,10 +316,10 @@ while not game_over:
         columns = []
         minimax_scores = []
         for board in boards:
-            col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
+            col, minimax_score = minimax(board, 5, -math.inf, math.inf, False)
             columns.append(col)
             minimax_scores.append(minimax_score)
-        best_move_index = minimax_scores.index(max(minimax_scores))
+        best_move_index = minimax_scores.index(min(minimax_scores))
         col = columns[best_move_index]
         row = get_next_open_row(boards[best_move_index], col)
         drop_piece(boards[best_move_index], row, col, AI_PIECE)
